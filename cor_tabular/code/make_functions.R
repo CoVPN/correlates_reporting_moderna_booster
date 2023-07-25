@@ -16,6 +16,7 @@
 #'  \emph{bl}FR\emph{folds}
 getResponder <- function(data,
                          # cutoff.name,
+                         timeBL="BD1",
                          times=times,
                          assays=assays,
                          folds=c(2, 4),
@@ -24,35 +25,23 @@ getResponder <- function(data,
                          pos.cutoffs = pos.cutoffs) {
 
   # cutoff <- get(paste0("l", cutoff.name, "s"))
+
   for (i in times){
     for (j in assays){
       post <- paste0(i, j)
-      bl <- paste0("BD1", j)
-      delta <- paste0("Delta", gsub("Day", "", i), "overBD", j)
+      bl <- paste0(timeBL, j)
+      delta <- paste0("Delta", gsub("Day", "", i), "over", timeBL, j)
       cutoff <- pos.cutoffs[j]
 
-      data[, bl] <- pmin(data[, bl], log10(uloqs[j]))
-      data[, post] <- pmin(data[, post], log10(uloqs[j]))
-      data[, delta] <- ifelse(10^data[, post] < cutoff, log10(cutoff/2), data[, post])-ifelse(10^data[, bl] < cutoff, log10(cutoff/2), data[, bl])
+      # data[, bl] <- pmin(data[, bl], log10(uloqs[j]))
+      # data[, post] <- pmin(data[, post], log10(uloqs[j]))
 
-      # for (k in folds){
-        # data[, paste0(post, k, "l", cutoff.name)] <- as.numeric(10^data[, post] >= k*cutoff)
-      # }
-
-      for (k in grtns){
-        data[, paste0(post, "FR", k)] <- as.numeric(10^data[, delta] >= k)
+      if(i!=timeBL){
+        data[, delta] <- ifelse(10^data[, post] < cutoff, log10(cutoff/2), data[, post])-ifelse(10^data[, bl] < cutoff, log10(cutoff/2), data[, bl])
       }
-
-      # if (!is.na(pos.cutoffs[j])) {
-      if(grepl("bind", j)){
         data[, paste0(post, "Resp")] <- as.numeric(data[, post] > log10(cutoff))
-      } else {
-      data[, paste0(post, "Resp")] <- as.numeric(
-        (data[, bl] < log10(cutoff) & data[, post] > log10(cutoff)) |
-          (data[, bl] >= log10(cutoff) & data[, paste0(post, "FR", responderFR)] == 1))
-      }
+     }
     }
-  }
   return(data)
 }
 
@@ -66,6 +55,7 @@ getResponder <- function(data,
 #' @param subset used in twophase()
 #'
 get_rr <- function(dat, v, subs, sub.by, strata, weights, subset){
+
   rpcnt <- NULL
   dat_twophase <- dat %>%
     group_by_at(strata) %>%
@@ -107,7 +97,7 @@ get_rr <- function(dat, v, subs, sub.by, strata, weights, subset){
         rpcnt)
     }
   }
-  rpcnt <- inner_join(rpcnt, distinct(labels_all, resp_cat, Visit, Marker, Ind), by = "resp_cat")
+  rpcnt <- inner_join(rpcnt, resp.lb, by = "resp_cat")
   return(rpcnt)
 }
 
@@ -157,7 +147,7 @@ get_gm <- function(dat, v, subs, sub.by, strata, weights, subset){
 
     }
   }
-  rgm <- inner_join(rgm, distinct(labels_all, mag_cat, Visit, Marker), by = "mag_cat")
+  rgm <- inner_join(rgm, resp.lb, by = "mag_cat")
   return(rgm)
 }
 
@@ -187,13 +177,14 @@ get_rgmt <- function(dat, v, groups, comp_lev, sub.by, strata, weights, subset){
     contrasts(dat[, gsub("`","",j)]) <- contr.treatment(2, base = 2)
     for (i in v){
       # cat(i,"--",j, comp_vs, "\n")
+
       n.ij <- subset(dat, dat[, subset] & !is.na(dat[, gsub("`","",j)]) & !is.na(dat[, i])) %>%
         group_by_at(gsub("`", "", sub.by), .drop=F) %>%
         summarise(n.j=n_distinct(!!as.name(gsub("`","",j)))) %>%
         filter(n.j==2) %>%
         unite("all.sub.by", 1:length(sub.by), remove=F)
 
-      if (nrow(n.j)!=0){
+      if (nrow(n.ij)!=0){
         dat.ij <- dat %>%
           group_by_at(strata) %>%
           mutate(ph1cnt=n(), ph2cnt=sum(!!as.name(subset), na.rm = T)) %>%
@@ -244,7 +235,7 @@ get_rgmt <- function(dat, v, groups, comp_lev, sub.by, strata, weights, subset){
                               comp=comp_vs,
                               `Ratios of GMT/GMC` = "-"))
   }
-  rgmt <- inner_join(rgmt, distinct(labels_all, mag_cat, Visit, Marker), by="mag_cat")
+  rgmt <- inner_join(rgmt, resp.lb, by = "mag_cat")
   return(rgmt)
 }
 
