@@ -28,8 +28,9 @@ base::load(here::here("cor_tabular", "output", attr(config,"config"), d))
   
   tlf_labels <- tlf[[i]]
   title_i <- tlf_labels[["table_header"]]
-  title_i <- ifelse(substr(title_i, 1, 11)=="Demographic", title_i, paste(tlf_labels[["table_header"]], d_lab))
-
+  # title_i <- ifelse(substr(title_i, 1, 11)=="Demographic", title_i, paste(tlf_labels[["table_header"]], d_lab))
+  title_i <- gsub("%", "\\\\%", title_i)
+  
   if (names(tlf)[i] == "tab_strtm1") {
     cat("\n\n\\newgeometry{top=0.1in, bottom=0.1in, left=1in, right=1in}")
     cat("\n\n\\begin{landscape}\n")
@@ -69,7 +70,8 @@ base::load(here::here("cor_tabular", "output", attr(config,"config"), d))
   
   rownames(tab) <- NULL
   colnames(tab) <- gsub("%", "\\\\%", colnames(tab))
-  colnames(tab) <- gsub("Baseline SARS-CoV-2", "Baseline\nSARS\\-CoV\\-2",
+  colnames(tab) <- gsub("-", "\\\\-", colnames(tab))
+  colnames(tab) <- gsub("Non-Naive", "Non\\-Naive",
                         colnames(tab))
   colnames(tab) <- gsub("% Greater than 2xLLO", "% Greater than\n2 $\\\\times$ LLO", colnames(tab))
   colnames(tab) <- gsub("% Greater than 4xLLO", "% Greater than\n4 $\\\\times$ LLO", colnames(tab))                        
@@ -94,6 +96,7 @@ base::load(here::here("cor_tabular", "output", attr(config,"config"), d))
 
       tabjk <- kable(if (is.na(deselect)) {tab.j} else {tab.j %>% select(-!!deselect)},
                      align = "l",
+                     linesep = "\\addlinespace",
                      format = "latex",
                      booktabs = TRUE,
                      longtable = TRUE,
@@ -102,7 +105,8 @@ base::load(here::here("cor_tabular", "output", attr(config,"config"), d))
                      caption = caption.i) %>%
         column_spec(1, width = ifelse("col1"%in%tlf_args, tlf_labels[["col1"]],"2.7cm")) %>% 
         kable_styling(latex_options = c("repeat_header", "scale_down"), 
-                      repeat_header_method = "replace") %>%
+                      repeat_header_method = "replace", 
+                      font_size = 9.5) %>%
         footnote(general_title = "", general = footer_i, threeparttable = TRUE,
         escape = FALSE)
 
