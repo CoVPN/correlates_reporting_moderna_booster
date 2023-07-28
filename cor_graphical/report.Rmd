@@ -18,11 +18,11 @@ library(latex2exp)
 here::i_am("cor_graphical/report.Rmd")
 
 if(study_name=="COVEBoost"){
-  set1_panels_1 = c("pseudoneutid50","bindSpike","bindRBD")
-  set1_panels_2 = c("bindSpike","bindRBD")
+  set1_panels_1 = c("pseudoneutid50","bindSpike")
+  set1_panels_2 = c("bindSpike")
   set1_times <- c("BD1","BD29","DeltaBD29overBD1")
   
-  set2_panels = c("pseudoneutid50","bindSpike","bindRBD","bindN")
+  set2_panels = c("pseudoneutid50","bindSpike")
   
   set3_times = c("BD1","BD29","DeltaBD29overBD1")
   
@@ -39,11 +39,51 @@ for (strain in c("2_strain")){
     }
   }
 }
+for (strain in c("2_strain")){
+  for (panel in set1_panels_1) {
+    for (time in set1_times) {
+  
+        res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub1.2.Rmd')), quiet = TRUE)
+        cat(res, sep = '\n')
+        cat("\\clearpage", sep = '\n')
+    }
+  }
+}
+for (strain in c("2_strain")){
+  for (panel in set1_panels_1) {
+    for (time in set1_times) {
+  
+        res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub1.3.Rmd')), quiet = TRUE)
+        cat(res, sep = '\n')
+        cat("\\clearpage", sep = '\n')
+    }
+  }
+}
 for (strain in c("6_strain")){
   for (panel in set1_panels_2) {
     for (time in set1_times) {
   
         res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub1.Rmd')), quiet = TRUE)
+        cat(res, sep = '\n')
+        cat("\\clearpage", sep = '\n')
+    }
+  }
+}
+for (strain in c("6_strain")){
+  for (panel in set1_panels_2) {
+    for (time in set1_times) {
+  
+        res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub1.2.Rmd')), quiet = TRUE)
+        cat(res, sep = '\n')
+        cat("\\clearpage", sep = '\n')
+    }
+  }
+}
+for (strain in c("6_strain")){
+  for (panel in set1_panels_2) {
+    for (time in set1_times) {
+  
+        res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub1.3.Rmd')), quiet = TRUE)
         cat(res, sep = '\n')
         cat("\\clearpage", sep = '\n')
     }
@@ -56,10 +96,20 @@ for (panel in set2_panels) {
       cat(res, sep = '\n')
       cat("\\clearpage", sep = '\n')
 }
+for (panel in set2_panels) {
+      res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub2.2.Rmd')), quiet = TRUE)
+      cat(res, sep = '\n')
+      cat("\\clearpage", sep = '\n')
+}
+for (panel in set2_panels) {
+      res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub2.3.Rmd')), quiet = TRUE)
+      cat(res, sep = '\n')
+      cat("\\clearpage", sep = '\n')
+}
 
 ## Set 3: Correlation plots across markers at a given time point #############
 for (time in set3_times) {
-  for (strain in c("15_markers", "6_markers"))
+  for (strain in c("9_markers", "4_markers"))
       res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub3.Rmd')), quiet = TRUE)
       cat(res, sep = '\n')
       cat("\\clearpage", sep = '\n')
@@ -68,6 +118,12 @@ for (time in set3_times) {
 ## Set 4: Correlation plots for a given marker across time points #############
 for (assay in assays) {
       res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub4.Rmd')), quiet = TRUE)
+      cat(res, sep = '\n')
+      cat("\\clearpage", sep = '\n')
+}
+
+for (assay in assays) {
+      res = knitr::knit_child(c(here::here('cor_graphical', 'report_sub4.2.Rmd')), quiet = TRUE)
       cat(res, sep = '\n')
       cat("\\clearpage", sep = '\n')
 }
