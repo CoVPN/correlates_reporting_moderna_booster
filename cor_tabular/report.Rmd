@@ -70,7 +70,7 @@ base::load(here::here("cor_tabular", "output", attr(config,"config"), d))
   
   rownames(tab) <- NULL
   colnames(tab) <- gsub("%", "\\\\%", colnames(tab))
-  colnames(tab) <- gsub("-", "\\\\-", colnames(tab))
+  colnames(tab) <- gsub("-", "\\-", colnames(tab))
   colnames(tab) <- gsub("Non-Naive", "Non\\-Naive",
                         colnames(tab))
   colnames(tab) <- gsub("% Greater than 2xLLO", "% Greater than\n2 $\\\\times$ LLO", colnames(tab))
@@ -106,7 +106,7 @@ base::load(here::here("cor_tabular", "output", attr(config,"config"), d))
         column_spec(1, width = ifelse("col1"%in%tlf_args, tlf_labels[["col1"]],"2.7cm")) %>% 
         kable_styling(latex_options = c("repeat_header", "scale_down"), 
                       repeat_header_method = "replace", 
-                      font_size = 9.5) %>%
+                      font_size = ifelse(is.null(tlf_labels[["font_size"]]), 9.5, tlf_labels[["font_size"]])) %>%
         footnote(general_title = "", general = footer_i, threeparttable = TRUE,
         escape = FALSE)
 

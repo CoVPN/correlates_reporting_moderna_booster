@@ -20,39 +20,17 @@ source(here::here("code", "make_functions.R"))
 # To select which tables are included in the report.
 # Also to modify the headers and footers for each table.
 
-if(T){
-  config$timepoints <- 29
-  times <- c("BD1", "BD29", "DD1", "DeltaBD29overBD1", "DeltaDD1overBD1")
-  config$ph2 <- "ph2.BD29"
-  tpeak <- config$tpeak <- 29
+if(study_name=="COVEBoost"){
+  config$tpeak <- 29
   config$WtStratum <- "Wstratum"
   config$wt <- "wt.BD29"
+  config$ph2 <- "ph2.BD29"
+  tpeak <- timepoints <- 29
+  times <- c("BD1", "BD29", "DD1", "DeltaBD29overBD1", "DeltaDD1overBD1")
   labels.time <- c(BD1="Post-booster Day 1", BD29="Post-booster Day 29", DD1="Disease Day 1",
                    DeltaBD29overBD1="BD29 fold-rise over BD1", DeltaDD1overBD1="Disease Day 1 fold-rise over BD1")
 }
 
-
-
-# randomsubcohort <- case_when(study_name %in% c("COVE", "MockCOVE", "COVEBoost") ~ "This table summarizes the
-#       random subcohort, which was randomly sampled from the per-protocol cohort. The
-#       sampling was stratified by 24 strata defined by enrollment characteristics: Assigned
-#       treatment arm $\\\\times$ Baseline SARS-CoV-2 naive vs. non-naive status
-#       (defined by serostatus and NAAT testing) $\\\\times$ Randomization strata
-#       (Age < 65 and at-risk, Age < 65 and not at-risk, Age $\\\\geq 65)\\\\times$
-#       Communities of color (Yes/No) defined by White Non-Hispanic vs. all
-#       others (following the primary COVE trial paper).",
-#
-#       study_name %in% c("ENSEMBLE", "MockENSEMBLE") ~ "This table summarizes characteristics of
-#       per-protocol participants in the immunogenicity subcohort, which was randomly
-#       sampled from the study cohort. The sampling was stratified by
-#       strata defined by enrollment characteristics: Assigned randomization arm $\\\\times$
-#       Baseline SARS-CoV-2 seronegative vs. seropositive $\\\\times$ Randomization strata.
-#       The U.S. subcohort includes 8 baseline demographic strata; the Latin America
-#       and South Africa subcohorts each include 4 baseline demographic strata.",
-#
-#       TRUE~"This table summarizes characteristics of
-#       per-protocol participants in the immunogenicity subcohort, which was randomly
-#       sampled from the study cohort.")
 
 
 tlf <-
@@ -60,7 +38,6 @@ tlf <-
     tab_dm_ph1_all = list(
       table_header = "Demographic and Clinical Characteristics in
       the Per-Protocol Cohort (Phase 1)",
-      # table_footer = randomsubcohort,
       deselect = "subgroup",
       pack_row = "subgroup",
       col1="7cm"
@@ -69,7 +46,6 @@ tlf <-
     tab_dm_neg_ph1 = list(
       table_header = "Demographic and Clinical Characteristics in
       the Naive Per-Protocol Cohort (Phase 1)",
-      # table_footer = randomsubcohort,
       deselect = "subgroup",
       pack_row = "subgroup",
       col1="7cm"
@@ -78,7 +54,6 @@ tlf <-
     tab_dm_pos_ph1 = list(
       table_header = "Demographic and Clinical Characteristics in
       the Non-Naive Per-Protocol Cohort (Phase 1)",
-      # table_footer = randomsubcohort,
       deselect = "subgroup",
       pack_row = "subgroup",
       col1="7cm"
@@ -87,7 +62,6 @@ tlf <-
     tab_dm_all = list(
       table_header = "Demographic and Clinical Characteristics in
       the Per-Protocol Cohort (Phase 2)",
-      # table_footer = randomsubcohort,
       deselect = "subgroup",
       pack_row = "subgroup",
       col1="7cm"
@@ -96,7 +70,6 @@ tlf <-
     tab_dm_neg = list(
       table_header = "Demographic and Clinical Characteristics in
       the Naive Per-Protocol Cohort (Phase 2)",
-      # table_footer = randomsubcohort,
       deselect = "subgroup",
       pack_row = "subgroup",
       col1="7cm"
@@ -105,7 +78,6 @@ tlf <-
     tab_dm_pos = list(
       table_header = "Demographic and Clinical Characteristics in
       the Non-Naive Per-Protocol Cohort (Phase 2)",
-      # table_footer = randomsubcohort,
       deselect = "subgroup",
       pack_row = "subgroup",
       col1="7cm"
@@ -123,353 +95,199 @@ tlf <-
       pack_row = "Arm"
     ),
 
-    # tab_case_cnt = list(
-    #   table_header = "Availability of immunogenicity data by case status",
-    #   deselect = "Arm",
-    #   pack_row = "Arm",
-    #   table_footer = c("The $+$ (available) and $-$ (unavailable) in the column
-    #                    labels refer to the availability of the BD1, BD29 and BD57 markers, respectively."),
-    #   col1="7cm"),
+    tab_case_cnt = list(
+      table_header = "Availability of immunogenicity data by case status",
+      deselect = "Arm",
+      pack_row = "Arm",
+      table_footer = c("The $+$ (available) and $-$ (unavailable) in the column
+                       labels refer to the availability of the BD1, BD29 and BD57 markers, respectively."),
+      col1="7cm"),
+
+    tab_fu = list(
+      table_header = "Average duration of follow-up post BD29 for cases and non-cases, stratified by naive/non-naive status"),
 
     tab_days = list(
-      table_header = sprintf("Duration from vaccination to BD%s visit in the Naive per-protocol cohort", config$tpeak),
+      table_header = sprintf("Duration from vaccination to BD%s visit in the per-protocol cohort", config$tpeak),
       deselect = "Arm",
       pack_row = "Arm"
     ),
 
+    tab_case_ba = list(
+      table_header = "Antibody levels to BA.1 in the per-protocol cohort",
+      table_footer =c("Case = COVID-19 Omicron BA.1 endpoints occured in the interval [$\\\\geq 7$ days post BD29 AND $\\\\geq$ Dec 1 2021, May 2022 data base lock date].
+                      Non-case = No acquirements of COVID-19 (of any strain) in the interval [BD1, data base lock date]",
+                      "Naive = No evidence of SARS-CoV-2 infection from enrollment through to BD1.
+                      Non-naive = Any evidence of SARS-CoV-2 infection in the interval [$\\\\geq 14$ days after the original 2-dose series, BD1]",
+        "N is the number of cases sampled into the subcohort within baseline covariate strata.",
+        "The denominator in Resp Rate is the number of participants in the whole stage 2 per-protocol cohort within baseline covariate strata, calculated using inverse probability weighting."),
+
+      col_name = c("Status", "Marker", "Visit","N", "Resp rate", "GMT/GMC", "N",
+                   "Resp rate", "GMT/GMC", "Resp Rate\nDifference", "GMTR/GMCR"),
+      header_above1 = c(" "=3, "Cases*" = 3, "Non-Cases/Control" = 3,
+                        "Comparison" = 2),
+      col1=".8cm",
+      font_size=9),
+
+    tab_case_g = list(
+      table_header = "Antibody levels to D614 in the per-protocol cohort",
+      table_footer =c("Case = COVID-19 Omicron BA.1 endpoints occured in the interval [$\\\\geq 7$ days post BD29 AND $\\\\geq$ Dec 1 2021, May 2022 data base lock date].
+                      Non-case = No acquirements of COVID-19 (of any strain) in the interval [BD1, data base lock date]",
+                      "Naive = No evidence of SARS-CoV-2 infection from enrollment through to BD1.
+                      Non-naive = Any evidence of SARS-CoV-2 infection in the interval [$\\\\geq 14$ days after the original 2-dose series, BD1]",
+                      "N is the number of cases sampled into the subcohort within baseline covariate strata.",
+                      "The denominator in Resp Rate is the number of participants in the whole stage 2 per-protocol cohort within baseline covariate strata, calculated using inverse probability weighting."),
+
+      col_name = c("Status", "Marker", "Visit","N", "Resp rate", "GMT/GMC", "N",
+                   "Resp rate", "GMT/GMC", "Resp Rate\nDifference", "GMTR/GMCR"),
+      header_above1 = c(" "=3, "Cases*" = 3, "Non-Cases/Control" = 3,
+                        "Comparison" = 2),
+      col1=".8cm",
+      font_size=9),
+
+    tab_case_cnt = list(
+      table_header = "Availability of immunogenicity data by case status",
+      deselect = "Arm",
+      pack_row = "Arm",
+      table_footer = c("The $+$ (available) and $-$ (unavailable) in the column
+                       labels refer to the availability of the BD1, BD29 and BD57 markers, respectively."),
+      col1="7cm"),
+
+
     tab1 = list(
       table_header = "Percentage of Responders by Visits",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline negative per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #     "Non-cases/Controls are baseline negative per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #     "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #     "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Post-booster Day 1", "Post-booster Day 29",
                    "Disease Day 1"),
       header_above1 = c(" "=4, "Visits" = 3),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Negative Vaccine Recipients" = 8),
       col1="1cm"),
 
     tab2 = list(
       table_header = "Percentage of Responders at Post-booster Day 1 (BD1) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline negative per-protocol placebo recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline negative per-protocol placebo recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Negative Placebo Recipients" = 8),
       col1="1cm"),
 
     tab3 = list(
       table_header = "Percentage of Responders at Post-booster Day 29 (BD29) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
     tab4 = list(
       table_header = "Percentage of Responders at Disease Day 1 (DD1) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
     tab5 = list(
       table_header = "Geometric mean titers (GMTs) and geometric mean concentrations (GMCs) by Visits",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Post-booster Day 1", "Post-booster Day 29",
                    "Disease Day 1"),
       header_above1 = c(" "=4, "Visits" = 3),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
 
     tab6 = list(
       table_header = "Geometric mean titers (GMTs) and geometric mean concentrations (GMCs) at Post-booster Day 1 (BD1) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline negative per-protocol placebo recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline negative per-protocol placebo recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Negative Placebo Recipients" = 8),
       col1="1cm"),
 
     tab7 = list(
       table_header = "Geometric mean titers (GMTs) and geometric mean concentrations (GMCs) at Post-booster Day 29 (BD29) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
     tab8 = list(
       table_header = "Geometric mean titers (GMTs) and geometric mean concentrations (GMCs) at Disease Day 1 (DD1) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
 
     tab9 = list(
       table_header = "Geometric mean titer ratios (GMTRs) or geometric mean concentration ratios (GMCRs) between post-booster/
 pre-booster",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker",  "BD29 fold-rise over BD1", "Disease Day 1 fold-rise over BD1"),
-      # header_above1 = c(" "=4, "Visits" = 2),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
 
     tab10 = list(
       table_header = "Geometric mean titer ratios (GMTRs) or geometric mean concentration ratios (GMCRs) between BD29/BD1 by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline negative per-protocol placebo recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline negative per-protocol placebo recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Negative Placebo Recipients" = 8),
       col1="1cm"),
 
     tab11 = list(
       table_header = "Geometric mean titer ratios (GMTRs) or geometric mean concentration ratios (GMCRs) between DD1/BD1 by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Case Status", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=4, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
     tab12 = list(
       table_header = "Differences in Positive Response Rates (95% CI) between Cases and Controls by Visits",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Naive/Non-Naive", "Marker", "Post-booster Day 1", "Post-booster Day 29"),
       header_above1 = c(" "=3, "Visits" = 2),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
 
     tab13 = list(
       table_header = "Differences in Positive Response Rates (95% CI) between Cases and Controls at Post-booster Day 1 (BD1) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline negative per-protocol placebo recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline negative per-protocol placebo recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=3, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Negative Placebo Recipients" = 8),
       col1="1cm"),
 
     tab14 = list(
       table_header = "Differences in Positive Response Rates (95% CI) between Cases and Controls at Post-booster Day 29 (BD29) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=3, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
     tab15 = list(
       table_header = "Geometric mean ratio (95% CI) between Cases and Controls by Visits",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline positive per-protocol vaccine recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline positive per-protocol vaccine recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Naive/Non-Naive", "Marker", "Post-booster Day 1", "Post-booster Day 29"),
       header_above1 = c(" "=3, "Visits" = 2),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Positive Vaccine Recipients" = 8),
       col1="1cm"),
 
 
     tab16 = list(
       table_header = "Geometric mean ratio (95% CI) between Cases and Controls at Post-booster Day 1 (BD1) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline negative per-protocol placebo recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline negative per-protocol placebo recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=3, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Negative Placebo Recipients" = 8),
       col1="1cm"),
 
     tab17 = list(
       table_header = "Geometric mean ratio (95% CI) between Cases and Controls at Post-booster Day 29 (BD29) by Boosting Period",
-      # table_footer =c(
-      #   paste(paste(sprintf("Cases for Day %s markers are baseline negative per-protocol placebo recipients
-      # with the symptomatic infection COVID-19 primary endpoint diagnosed starting %s day(s)
-      # after the Day %s study visit.", config$tpeak, config$tpeaklag, config$tpeak), collapse=" "),
-      #         "Non-cases/Controls are baseline negative per-protocol placebo recipients sampled into the random subcohort
-      # with no COVID-19 endpoint diagnosis by the time of data-cut."),
-      #   "N is the number of cases sampled into the subcohort within baseline covariate strata.",
-      #   "The denominator in Resp Rate is the number of participants in the whole per-protocol cohort within baseline
-      # covariate strata, calculated using inverse probability weighting."),
-
       col_name = c("Arm", "Naive/Non-Naive", "Marker", "Sep23-Oct15 2021", "Oct16-Oct31 2021",
                    "Nov 2021", "Dec 2021"),
       header_above1 = c(" "=3, "Boosted Period" = 4),
-      # header_above2 = c(" "=2,
-      #                   "Baseline SARS-CoV-2 Negative Placebo Recipients" = 8),
-      col1="1cm")
+      col1="1cm"),
 
+    tab18 = list(
+      table_header = "Geometric mean ratio (95% CI) between Naive and Non-Naive by Visits",
+      col_name = c("Arm", "Case", "Marker", "Post-booster Day 1", "Post-booster Day 29"),
+      header_above1 = c(" "=3, "Visits" = 2),
+      col1="1cm"),
+
+    tab19 = list(
+      table_header = "Geometric mean ratio (95% CI) between Vaccine and Placebo by Visits",
+      col_name = c("Naive/Non-Naive", "Case", "Marker", "Post-booster Day 1", "Post-booster Day 29"),
+      header_above1 = c(" "=3, "Visits" = 2),
+      col1="1cm")
     )
 
 
-
-# cutoff.name <- config$llox_label
-
-timepoints <- config$timepoints
 
 labels.age <- case_when(study_name %in% c("ENSEMBLE", "MockENSEMBLE") ~ c("Age 18 - 59", "Age $\\geq$ 60"),
                         TRUE~ c("Age $<$ 65", "Age $\\geq$ 65"))
@@ -479,7 +297,6 @@ labels.minor <- c("Communities of Color", "White Non-Hispanic")
 labels.BMI <- c("Underweight BMI < 18.5", "Normal 18.5 $\\leq$ BMI < 25",
                 "Overweight 25 $\\leq$ BMI < 30", "Obese BMI $\\geq$ 30")
 
-# labels.time <- labels.time[times]
 
 assays <- assay_metadata$assay
 
@@ -510,10 +327,6 @@ resp.lb <- expand.grid(
 # Select the covariates to be summarised.
 # num_v are columns from ds_long;
 # cat_v are rows of `subgroup`
-
-
-# dat.mock was made in _common.R
-# dat <- dat.mock
 
 
 # The stratified random cohort for immunogenicity
@@ -606,10 +419,10 @@ subgrp <- c(
 ###################################################
 
 # Setup empty tables
-tab_dm_neg <- tab_dm_pos <- tab_dm_neg_ph1 <- tab_dm_pos_ph1 <- NULL
-tab_strtm1 <- tab_strtm2 <- tab_strtm2_1 <- tab_strtm2_2 <- tab_case_cnt <- NULL
-rpcnt_case <- rgm_case <- rgmt_case <- NULL
-case_vacc_neg <-case_plcb_neg <-case_vacc_pos <-case_plcb_pos <- NULL
+
+for (i in names(tlf)){
+  assign(i, NULL)
+}
 
 if (study_name %in% c("COVE", "MockCOVE", "COVEBoost")) {
   num_v1 <- c("Age") # Summaries - Mean & Range
@@ -631,9 +444,7 @@ if (study_name %in% c("COVE", "MockCOVE", "COVEBoost")) {
 }
 
 ds_long_ttl <- ds %>%
-  dplyr::filter(!!as.name(config$ph2)) %>%
-  # dplyr::filter(ph2.immuno) %>%
-  # dplyr::filter(!!as.name(paste0("ph2.D", tpeak))) %>%
+  dplyr::filter(!!as.name(paste0("ph2.BD", tpeak))) %>%
   bind_rows(mutate(., Arm="Total")) %>%
   mutate(AgeRiskC = ifelse(grepl("$\\geq$ 65", AgeRiskC, fixed=T), "Age $\\geq$ 65 ", AgeRiskC)) %>%
   mutate_all(as.character) %>%
@@ -641,8 +452,6 @@ ds_long_ttl <- ds %>%
 
 ds_long_ttl_ph1 <- ds %>%
   dplyr::filter(!!as.name(config$ph1)) %>%
-  # dplyr::filter(Perprotocol & SubcohortInd==1) %>%
-  # dplyr::filter(!!as.name(paste0("ph2.D", tpeak))) %>%
   bind_rows(mutate(., Arm="Total")) %>%
   mutate(AgeRiskC = ifelse(grepl("$\\geq$ 65", AgeRiskC, fixed=T), "Age $\\geq$ 65 ", AgeRiskC)) %>%
   mutate_all(as.character) %>%
@@ -938,15 +747,8 @@ tab_dm_ph1_all <- tab_dm_ph1_all %>%
               grep("Non-Naive" ,names(.), value = T),
               grep("Total" ,names(.), value = T)))
 
-print("Done with table 1")
+print("Done with Demo tables")
 
-
-# Cases & Non-cases
-# if (study_name %in% c("COVE", "MockCOVE", "COVEBoost", "MockENSEMBLE", "PREVENT19", "VAT08m")){
-#   nonCaseD <- timepoints[length(timepoints)]
-# } else {
-#   nonCaseD <- tpeak
-# }
 
 ds <- ds %>%
   mutate(
@@ -978,8 +780,6 @@ strtm_cutoff <- ifelse(study_name %in% c("ENSEMBLE", "MockENSEMBLE"), length(dem
 
 tab_strtm <- ds %>%
   filter(!!as.name(config$ph2)) %>%
-  # Hardcode
-  filter(!is.na(demo.stratum)) %>%
   group_by(demo.stratum, Arm, Status) %>%
   summarise("Day {tpeak} Cases":=sum(Case=="Cases", na.rm=T),
             `Non-Cases`=sum(Case=="Non-Cases", na.rm=T)) %>%
@@ -1056,9 +856,17 @@ if ((Numberdays <- paste0("NumberdaysBD1toBD", config$tpeak)) %in% names(ds)) {
   tab_days <- NULL
 }
 
+tab_fu <- ds %>%
+  mutate(NumberdaysBD29toBD181=NumberdaysBD1toBD181-NumberdaysBD1toBD29) %>%
+  mutate(FUdur=ifelse(is.na(NumberdaysBD1toBD29), NA, pmax(NumberdaysBD29toBD181, EventTimePrimaryOmicronBD29, EventTimeOmicronBD29, 0, na.rm = T))) %>%
+  filter(!!as.name(config$ph1), !is.na(Case)) %>%
+  group_by(Case, Status) %>%
+  summarise(N=n(), `Average Follow-up (days)`=round(mean(FUdur, na.rm=T), 0))
+
+
 # Case counts by availability of markers at baseline, d29, d57
 
-if (study_name %in% c("COVE", "MockCOVE", "COVEBoost")){
+if (study_name %in% c("COVE", "MockCOVE")){
   tab_case_cnt <- make.case.count.marker.availability.table(dat) %>%
     data.frame(check.names = F) %>%
     rename_all(gsub, pattern=".", replacement="_", fixed=T) %>%
@@ -1084,9 +892,9 @@ if (study_name %in% c("COVE", "MockCOVE", "COVEBoost")){
     ds.i_ %>% mutate(Case="All"),
     ds.i_ %>% mutate(Arm="All", Case="All"),
     ds.i_ %>% mutate(Arm="All", Status="All"),
-    ds.i_ %>% mutate(Case="All", Status="All"))
+    ds.i_ %>% mutate(Case="All", Status="All"),
+    ds.i_)
 
-  nrow(ds.i)/nrow(ds)
 
   resp.v <- resp.lb %>% filter(time%in%c("BD1", "BD29", "DD1")) %>% pull(resp_cat)
   gm.v <- resp.lb %>% filter(time%in%c("BD1", "BD29", "DD1")) %>% pull(mag_cat)
@@ -1096,7 +904,13 @@ if (study_name %in% c("COVE", "MockCOVE", "COVEBoost")){
 
   rpcnt_case <- get_rr(ds.i, resp.v, subs, sub.by, strata=config$WtStratum, weights=config$wt, subset=config$ph2)
   rgm_case <- get_gm(ds.i, resp.lb$mag_cat, subs, sub.by, strata=config$WtStratum, weights=config$wt, subset=config$ph2)
-  rgmt_case <- get_rgmt(ds.i, gm.v, subs, comp_lev=comp.i, sub.by, strata=config$WtStratum, weights=config$wt, subset=config$ph2)
+  # rgmt_case <- get_rgmt(ds.i, gm.v, subs, comp_lev=comp.i, sub.by, strata=config$WtStratum, weights=config$wt, subset=config$ph2)
+  rgmt_case <- get_rgmt(ds.i, resp.lb$mag_cat, subs, comp_lev=comp.i, sub.by, strata=config$WtStratum, weights=config$wt, subset=config$ph2)
+
+  rgmt_naive <- get_rgmt(ds.i, resp.lb$mag_cat, groups="Status", comp_lev=c("Naive", "Non-Naive"), sub.by=c("CalendarBD1Interval","Arm", "Case"), strata=config$WtStratum, weights=config$wt, subset=config$ph2)
+
+  rgmt_arm <- get_rgmt(ds.i, resp.lb$mag_cat, groups="Arm", comp_lev=c("Vaccine", "Placebo"), sub.by=c("CalendarBD1Interval","Status", "Case"), strata=config$WtStratum, weights=config$wt, subset=config$ph2)
+
 
   print("Done with table 2b & 3b")
 
@@ -1123,6 +937,48 @@ idVar <- c("Arm", "Group", "Status", "Marker")
 visitVar <- c("Post-booster Day 1", "Post-booster Day 29", "Disease Day 1")
 periodVar <- paste0("Period", 1:4)
 deltaVar <- c("BD29 fold-rise over BD1", "Disease Day 1 fold-rise over BD1")
+
+tab_case <- full_join(rpcnt_case, rgm_case %>% select(-mag:-ci_u)) %>%
+  full_join(rgmt_case %>% select(-`(Intercept)`:-ci_u.Estimate)) %>%
+  full_join(rrdiff_case %>% select(-response1:-ci_u)) %>%
+  # filter(Arm=="All", Group!="All", Status!="All", CalendarBD1Interval==5, time%in%grep(tpeak, times, value = T)) %>%
+  filter(Arm=="All", Group!="All", Status!="All", CalendarBD1Interval==5) %>%
+  pivot_wider(id_cols=c(Visit, Status, Marker, comp, `Ratios of GMT/GMC`, rrdiff), names_from = Group, values_from = c(N, rslt, `GMT/GMC`))
+
+if(length(comp_NA <- setdiff(comp.i, rpcnt_case$Group))!=0){
+  tab_case <- tab_case %>%
+    mutate(!!paste0("N_", comp_NA) := 0,
+           !!paste0("rslt_", comp_NA) := "-",
+           !!paste0("GMT/GMC_", comp_NA) :="-",
+           `Ratios of GMT/GMC`=replace_na(`Ratios of GMT/GMC`, "-"))
+}else{
+  tab_case <- tab_case %>%
+    mutate_at(vars(starts_with("N_")), replace_na, replace=0) %>%
+    mutate_at(vars(starts_with("rslt_")), replace_na, replace="-") %>%
+    mutate_at(vars(starts_with("GMT/GMC_")), replace_na, replace="-") %>%
+    mutate(`Ratios of GMT/GMC`=replace_na(`Ratios of GMT/GMC`, "-"))
+}
+
+tab_case <- tab_case %>%
+  select(Status, Marker, Visit, `N_Cases`, `rslt_Cases`,
+         `GMT/GMC_Cases`, `N_Non-Cases`, `rslt_Non-Cases`, `GMT/GMC_Non-Cases`,
+         rrdiff, `Ratios of GMT/GMC`)
+
+tab_case_ba <- tab_case %>%
+  filter(grepl("BA.1", Marker)) %>%
+  arrange(Status, desc(Visit), desc(Marker)) %>%
+  mutate(Marker=gsub(" to", "\nto", Marker),
+         Visit=gsub("Day", "\nDay", Visit),
+         Visit=gsub("over", "\nover", Visit),
+         Status=gsub("Non-", "Non-\n", Status))
+
+tab_case_g <- tab_case %>%
+  filter(grepl("PsV Neutralization to D614G|Binding Antibody to Spike D614", Marker)) %>%
+  arrange(Status, desc(Visit), desc(Marker)) %>%
+  mutate(Marker=gsub(" to", "\nto", Marker),
+         Visit=gsub("Day", "\nDay", Visit),
+         Visit=gsub("over", "\nover", Visit),
+         Status=gsub("Non-", "Non-\n", Status))
 
 tab1 <- rpcnt_case %>%
   filter(CalendarBD1Interval==5) %>%
@@ -1253,6 +1109,22 @@ tab17 <- rgmt_case %>%
   select(all_of(c(idVar[-2], periodVar)))
 
 
+tab18 <- rgmt_naive %>%
+  filter(time!="DD1" & CalendarBD1Interval==5) %>%
+  select(Arm, Case, `Ratios of GMT/GMC`, Marker, Visit) %>%
+  pivot_wider(names_from = Visit, values_from = `Ratios of GMT/GMC`) %>%
+  arrange(Arm, Case, Marker) %>%
+  select(all_of(c("Arm", "Case", "Marker", visitVar[-3])))
+
+tab19 <- rgmt_arm %>%
+  filter(time!="DD1" & CalendarBD1Interval==5) %>%
+  select( Status, Case, `Ratios of GMT/GMC`, Marker, Visit) %>%
+  pivot_wider(names_from = Visit, values_from = `Ratios of GMT/GMC`) %>%
+  arrange(Status, Case, Marker) %>%
+  select(all_of(c("Status", "Case", "Marker", visitVar[-3])))
+
+
+
 
 
 if(study_name %in% c("PREVENT19") & all(ds$Country==0)){
@@ -1263,11 +1135,6 @@ if(study_name %in% c("PREVENT19") & all(ds$Country==0)){
   }
 }
 
-if(tpeak!=timepoints[1]){
-  tlf <- tlf[!names(tlf) %in% c("tab_dm_neg_ph1", "tab_dm_pos_ph1", "tab_dm_neg", "tab_dm_pos")]
-}
-
-
 # path for tables
 save.results.to <- here::here("output")
 if (!dir.exists(save.results.to))  dir.create(save.results.to)
@@ -1276,8 +1143,4 @@ save.results.to <- paste0(here::here("output"), "/", attr(config,"config"))
 if (!dir.exists(save.results.to))  dir.create(save.results.to)
 print(paste0("save.results.to equals ", save.results.to))
 
-save(list = c("tlf", "tab_case_cnt", "tab_days",
-            paste0("tab_dm_", c("all", "ph1_all", "neg", "pos", "neg_ph1", "pos_ph1")),
-            paste0("tab_strtm", c(1, 2, "2_1", "2_2")),
-            paste0("tab", 1:17)),
-     file = file.path(save.results.to, sprintf("Tables%s.Rdata", ifelse(exists("COR"), COR, ""))))
+save(list = c("tlf", names(tlf)), file = file.path(save.results.to, sprintf("Tables%s.Rdata", ifelse(exists("COR"), COR, ""))))
