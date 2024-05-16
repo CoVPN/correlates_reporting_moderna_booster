@@ -10,7 +10,9 @@ library(grid)
 library(gridExtra)
 install.packages("wCorr", repos = "http://cran.us.r-project.org") # weighted correlation
 library(wCorr)
-library(ggnewscale) # for new_scale_color() 
+library(ggnewscale) # for new_scale_color()
+install.packages("weights", repos = "http://cran.us.r-project.org")
+library(weights) # for wtd.cor()
 
 # There is a bug on Windows that prevents renv from working properly. The following code provides a workaround:
 #if (.Platform$OS.type == "windows") .libPaths(c(paste0(Sys.getenv ("R_HOME"), "/library"), .libPaths()))
@@ -379,6 +381,7 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         assays = assays,
         strata = "all_one",
         weight = "wt.BD29",
+        corr_size = 3,
         plot_title = paste0(
             "Correlations of 9 ", t, " antibody markers, Corr = Weighted Spearman Rank Correlation."
         ),
@@ -404,6 +407,7 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         # currently strata is hard-coded to 1's and hard-coded not being used in the correlation calculation
         # strata-based model is currently commented out in the function, ggally_statistic_resample
         weight = "wt.BD29",
+        corr_size = 4,
         plot_title = paste0(
             "Correlations of 4 ", t, " antibody markers, ", if (grepl("Delta", t)) "\n", "Corr = Weighted Spearman Rank Correlation."
         ),
@@ -426,6 +430,7 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         # currently strata is hard-coded to 1's and hard-coded not being used in the correlation calculation
         # strata-based model is currently commented out in the function, ggally_statistic_resample
         weight = "wt.BD29",
+        corr_size = 4,
         plot_title = paste0(
             "Correlations of 4 ", t, " antibody markers, among naive participants\n", "Corr = Weighted Spearman Rank Correlation."
         ),
@@ -449,6 +454,7 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         # currently strata is hard-coded to 1's and hard-coded not being used in the correlation calculation
         # strata-based model is currently commented out in the function, ggally_statistic_resample
         weight = "wt.BD29",
+        corr_size = 4,
         plot_title = paste0(
             "Correlations of 4 ", t, " antibody markers, among non-naive participants\n", "Corr = Weighted Spearman Rank Correlation."
         ),
@@ -485,6 +491,7 @@ for (a in assays){
                 strata = "all_one",
                 weight = "wt.BD29",
                 plot_title = "",
+                corr_size = 2,
                 column_labels = times_sub,
                 height = 5.5,
                 width = 5.5,
@@ -541,6 +548,7 @@ for (a in assays){
                 strata = "all_one",
                 weight = "wt.BD29",
                 plot_title = "",
+                corr_size = 3,
                 column_labels = times_sub,
                 height = 5.5,
                 width = 5.5,

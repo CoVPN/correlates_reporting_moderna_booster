@@ -726,19 +726,18 @@ ggally_cor_resample <- function(
                     )
                 } else if (B == 0){ # resampling will not be done, weighted spearman correlation will be done
                     
-                    corObj <- try(weightedCorr(x, y, method = "Spearman", weights = wt),
-                                  silent = TRUE
-                    )
+                    corObj <- try(weightedCorr(x, y, method = "Spearman", weights = wt), silent = TRUE)
+                    corObj_p <- try(wtd.cor(x, y, wt, collapse=F)$p.value, silent = TRUE)
                     
-                    corvec <- ifelse(class(corObj) == "try-error",
-                                         NA,
-                                         corObj
-                    )
+                    corvec <- ifelse(class(corObj) == "try-error", NA, corObj)
+                    corvec_p <- ifelse(class(corObj_p) == "try-error", NA, corObj_p)
                     
                 }
             # saveRDS(corvec, file = "corvec.RDS")
             cor_est <- mean(corvec, na.rm = TRUE)
-            cor_txt <- formatC(cor_est, digits = digits, format = "f")
+            cor_txt <- paste0(
+                formatC(cor_est, digits = digits, format = "f")," (",
+                ifelse(corvec_p<0.001, "<0.001", format(round(corvec_p, 3), nsmall = 3)), ")")
             cor_txt
         }
     )
