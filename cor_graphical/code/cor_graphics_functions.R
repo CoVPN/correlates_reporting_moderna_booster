@@ -305,6 +305,7 @@ f_longitude_by_assay <- function(
 #' @param chtpchs shape panel for points
 #' @param strip.text.y.size strip label size for y-axis, default is 25
 #' @param axis.text.x.size x-axis label size, default is 9.5
+#' @param rate.y.pos y-axis position to show response rate
 #' @return A ggplot object list for longitudinal violin + box plot with lines
 f_longitude_by_assay_adhoc <- function(
     dat,
@@ -321,7 +322,8 @@ f_longitude_by_assay_adhoc <- function(
     chtcols = setNames(c("#FF6F1B", "#0AB7C9", "#8F8F8F"), c("Omicron Cases", "Non-Cases", "Non-Responders")),
     chtpchs = setNames(c(19, 19, 2), c("Omicron Cases", "Non-Cases", "Non-Responders")),
     strip.text.y.size = 25,
-    axis.text.x.size = 9.5
+    axis.text.x.size = 9.5,
+    rate.y.pos
 ) {
     
     plot_theme <- theme_bw() +
@@ -378,8 +380,8 @@ f_longitude_by_assay_adhoc <- function(
                 scale_color_manual(name = "", values = chtcols, breaks = lgdbreaks, drop=FALSE) +
                 scale_shape_manual(name = "", values = chtpchs, breaks = lgdbreaks, drop=FALSE) +
                 
-                geom_text(aes(label = ifelse(RespRate!="","Rate",""), x = 0.1, y = rate.y), hjust = 0, color = "black", size = panel.text.size, check_overlap = TRUE) +
-                geom_text(aes_string(x = x.var, label = "RespRate", y = "rate.y"), color = "black", size = panel.text.size, check_overlap = TRUE) +
+                geom_text(aes(label = ifelse(RespRate!="","Rate",""), x = 0.1, y = rate.y.pos), hjust = 0, color = "black", size = panel.text.size, check_overlap = TRUE) +
+                geom_text(aes_string(x = x.var, label = "RespRate", y = "rate.y.pos"), color = "black", size = panel.text.size, check_overlap = TRUE) +
                 
                 geom_hline(aes(yintercept = ifelse(RespRate!="",lbval,-99)), linetype = "dashed", color = "gray", na.rm = TRUE) +
                 geom_text(aes(label = ifelse(RespRate!="",lb,""), x = 0.1, y = lbval), hjust = 0, color = "black", size = panel.text.size, check_overlap = TRUE, na.rm = TRUE) + 
@@ -388,7 +390,7 @@ f_longitude_by_assay_adhoc <- function(
                 #geom_text(aes(label = ifelse(RespRate!="",lb2,""), x = 0.1, y = lbval2), hjust = 0, color = "black", size = panel.text.size, check_overlap = TRUE, na.rm = TRUE) + 
                 
                 # placeholder
-                geom_text(aes(label = "", x = 0.1, y = y.lowerlim), hjust = 0, color = "black", size = panel.text.size, check_overlap = TRUE, na.rm = TRUE) + 
+                #geom_text(aes(label = "", x = 0.1, y = y.lowerlim), hjust = 0, color = "black", size = panel.text.size, check_overlap = TRUE, na.rm = TRUE) + 
                 
                 scale_x_discrete(labels = x.lb#d[x.var]
                                      ) +

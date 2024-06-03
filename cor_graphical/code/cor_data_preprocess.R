@@ -47,6 +47,7 @@ dat <- dat.cp %>% select(Ptid, Trt, CalendarBD1Date, CalendarBD1Interval, nnaive
                       EventTimeOmicronBD1:EventIndOmicronBD29, 
                       EventTimePrimaryOmicronBD1:EventIndPrimaryOmicronBD29, 
                       #EventIndPrimary, EventTimePrimary, 
+                      Sex,
                       ph2.BD29, wt.BD29, wt.DD1,
                       all_of(immuno_vars))
 
@@ -159,6 +160,7 @@ resp_by_time_assay <- resp[, c("Ptid", colnames(resp)[grepl("Resp", colnames(res
 dat.longer.cor.subset <- dat.longer.cor.subset %>%
   mutate(category=paste0(time, assay, "Resp")) %>%
   select(Ptid, time, assay, category, Trt, nnaive, cohort_event, value, wt.BD29, wt.DD1,
+         Sex,
          lbval,lbval2,
          lb,lb2) %>%
   left_join(resp_by_time_assay, by=c("Ptid", "category"))
@@ -199,3 +201,12 @@ saveRDS(dat.longer.cor.subset.plot1.3, file = here::here("data_clean", "longer_c
 dat.longer.cor.subset.plot1.4 <- dat.longer.cor.subset.plot1.3 
 write.csv(dat.longer.cor.subset.plot1.4, file = here::here("data_clean", "longer_cor_data_plot1.4.csv"), row.names=F)
 saveRDS(dat.longer.cor.subset.plot1.4, file = here::here("data_clean", "longer_cor_data_plot1.4.rds"))
+
+#### for figures 2.5: BD1 vs BD29, by naive vs non-naive, case/non-case, (Day 1), Day 29 Day 57
+groupby_vars1.5=c("cohort_event", "nnaive", "time", "assay", "Sex")
+
+# define response rate
+dat.longer.cor.subset.plot1.5 <- get_desc_by_group(dat.longer.cor.subset, groupby_vars1.5)
+write.csv(dat.longer.cor.subset.plot1.5, file = here::here("data_clean", "longer_cor_data_plot1.5.csv"), row.names=F)
+saveRDS(dat.longer.cor.subset.plot1.5, file = here::here("data_clean", "longer_cor_data_plot1.5.rds"))
+

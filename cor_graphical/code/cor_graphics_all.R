@@ -4,7 +4,7 @@ renv::activate(project = here::here(".."))
 library(GGally)
 library(stringr)
 require(devtools)
-install_version("dummies", version = "1.5.6", repos = "http://cran.us.r-project.org")
+#install_version("dummies", version = "1.5.6", repos = "http://cran.us.r-project.org")
 library(cowplot) # for function plot_grid
 library(grid)
 library(gridExtra)
@@ -35,6 +35,7 @@ dat.longer.cor.subset.plot1 <- readRDS(here::here("data_clean", "longer_cor_data
 dat.longer.cor.subset.plot1.2 <- readRDS(here::here("data_clean", "longer_cor_data_plot1.2.rds"))
 dat.longer.cor.subset.plot1.3 <- readRDS(here::here("data_clean", "longer_cor_data_plot1.3.rds"))
 dat.longer.cor.subset.plot1.4 <- readRDS(here::here("data_clean", "longer_cor_data_plot1.4.rds"))
+dat.longer.cor.subset.plot1.5 <- readRDS(here::here("data_clean", "longer_cor_data_plot1.5.rds"))
 dat.cor.subset.plot3 <- readRDS(here::here("data_clean", "cor_data_plot3.rds")); dat.cor.subset.plot3$all_one <- 1 # as a placeholder for strata values
 dat.long.cor.subset.plot5 <- readRDS(here::here("data_clean", "scatter_rug_data_plot5.rds"))
 
@@ -272,7 +273,7 @@ dat.longer.cor.subset.plot1.4.sub1 = dat.longer.cor.subset.plot1.4 %>%
            y.lowerlim = case_when(grepl("bindSpike", assay) ~ 1.7,
                                   grepl("pseudoneutid50", assay) ~ 0.6,
                                   TRUE ~ NA_real_),
-           rate.y = case_when(assay=="bindSpike" ~ 6,
+           rate.y.pos = case_when(assay=="bindSpike" ~ 6,
                               assay=="pseudoneutid50" ~ 4.5,
                               assay=="bindSpike_BA.1" ~ 6,
                               assay=="pseudoneutid50_BA.1" ~ 4.5,
@@ -369,8 +370,40 @@ for (i in 1:length(c("BA.1","D614(G)"))){
 
 }
 
+# requested on 6/3/2024, similar to 2.4.1 but also at gender level, by gender, only for BA.1
+f_2.5 <- f_longitude_by_assay_adhoc(
+    dat = dat.longer.cor.subset.plot1.5 %>%
+        mutate(Sex = ifelse(Sex == 0, "Male", ifelse(Sex == 1, "Female", "")),
+               rate.y.pos = case_when(assay=="bindSpike" ~ 6,
+                                      assay=="pseudoneutid50" ~ 4.5,
+                                      assay=="bindSpike_BA.1" ~ 6,
+                                      assay=="pseudoneutid50_BA.1" ~ 4.5,
+                                      TRUE ~ NA_real_)),
+    x.var = "time",
+    x.lb = c("BD1","BD29"),
+    assays = c("pseudoneutid50_BA.1","bindSpike_BA.1"),
+    times = c("BD1","BD29"),
+    panel.text.size = 6,
+    facet.y.var = vars(factor(assay_label_short, levels = c("Pseudovirus-nAb BA.1 (AU/ml)",
+                                                            "Anti Spike IgG BA.1 (AU/ml)"))), 
+    facet.x.var = vars(Trt_nnaive2),
+    split.var = "Sex",
+    pointby = "cohort_col2",
+    lgdbreaks = c("Omicron Cases Vaccine", "Omicron Cases Placebo", "Non-Cases Vaccine", "Non-Cases Placebo"),
+    chtcols = setNames(c("goldenrod2","#378252","goldenrod2","#378252"), c("Omicron Cases Vaccine", "Omicron Cases Placebo", "Non-Cases Vaccine", "Non-Cases Placebo")),
+    chtpchs = setNames(c(17, 1, 17, 1), c("Omicron Cases Vaccine", "Omicron Cases Placebo", "Non-Cases Vaccine", "Non-Cases Placebo")),
+    strip.text.y.size = 18,
+    axis.text.x.size = 18
+)
 
-
+for (i in 1:length(c("female","male"))){
+    
+    sex = c("female","male")[i]
+    
+    file_name <- paste0("BA.1_longitudinal_by_case_non_case_BD1_BD29_pooled_v3", "_", sex, ".pdf")
+    ggsave(plot = f_2.5[[i]], filename = paste0(save.results.to, file_name), width = 16, height = 11)
+    
+}
 
 ###### Set 3 plots: Correlation plots across markers at a given time point
 # 9 markers, three timepoints
