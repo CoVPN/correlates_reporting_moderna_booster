@@ -374,10 +374,10 @@ for (i in 1:length(c("BA.1","D614(G)"))){
 f_2.5 <- f_longitude_by_assay_adhoc(
     dat = dat.longer.cor.subset.plot1.5 %>%
         mutate(Sex = ifelse(Sex == 0, "Male", ifelse(Sex == 1, "Female", "")),
-               rate.y.pos = case_when(assay=="bindSpike" ~ 6,
-                                      assay=="pseudoneutid50" ~ 4.5,
-                                      assay=="bindSpike_BA.1" ~ 6,
-                                      assay=="pseudoneutid50_BA.1" ~ 4.5,
+               rate.y.pos = case_when(assay=="bindSpike" ~ 5.5,#6,
+                                      assay=="pseudoneutid50" ~ 3.5,#,4.5,
+                                      assay=="bindSpike_BA.1" ~ 5.5,#6,
+                                      assay=="pseudoneutid50_BA.1" ~ 3.5,#4.5,
                                       TRUE ~ NA_real_)),
     x.var = "time",
     x.lb = c("BD1","BD29"),
