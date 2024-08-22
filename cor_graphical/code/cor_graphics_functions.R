@@ -739,7 +739,7 @@ ggally_cor_resample <- function(
             cor_est <- mean(corvec, na.rm = TRUE)
             cor_txt <- paste0(
                 formatC(cor_est, digits = digits, format = "f")," (",
-                ifelse(corvec_p<0.001, "<0.001", format(round(corvec_p, 3), nsmall = 3)), ")")
+                ifelse(corvec_p<0.001, "<0.001", format(round(corvec_p, 3), nsmall = 3)), ")\nn=", length(x))
             cor_txt
         }
     )

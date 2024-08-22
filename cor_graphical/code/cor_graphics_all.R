@@ -408,6 +408,10 @@ for (i in 1:length(c("female","male"))){
 ###### Set 3 plots: Correlation plots across markers at a given time point
 # 9 markers, three timepoints
 for (t in c("BD1","BD29","DeltaBD29overBD1")) {
+    
+    subset_columns <- dat.cor.subset.plot3[, paste0(t, assays)]
+    cleaned_data <- subset_columns[rowSums(is.na(subset_columns)) < ncol(subset_columns), ] # Remove rows where all columns in the subset are missing
+    
     covid_corr_pairplots(
         plot_dat = dat.cor.subset.plot3,
         time = t,
@@ -416,7 +420,8 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         weight = "wt.BD29",
         corr_size = 3,
         plot_title = paste0(
-            "Correlations of 9 ", t, " antibody markers, Corr = Weighted Spearman Rank Correlation."
+            "Correlations of 9 ", t, " antibody markers, Corr = Weighted Spearman Rank Correlation. n=", 
+            nrow(cleaned_data)
         ),
         column_labels = paste(t, assay_metadata$assay_label_short),
         height = max(1.3 * length(assays) + 0.1, 5.5),
@@ -430,8 +435,10 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
 
 
     # 4 markers, three timepoints
-    assay_metadata_sub <- subset(assay_metadata, assay %in% c("bindSpike", "bindSpike_BA.1",
-                                                              "pseudoneutid50", "pseudoneutid50_BA.1"))
+    assay_metadata_sub <- subset(assay_metadata, assay %in% c("bindSpike", "bindSpike_BA.1", "pseudoneutid50", "pseudoneutid50_BA.1"))
+    subset_columns <- dat.cor.subset.plot3[, paste0(t, assay_metadata_sub$assay)]
+    cleaned_data <- subset_columns[rowSums(is.na(subset_columns)) < ncol(subset_columns), ] # Remove rows where all columns in the subset are missing
+    
     covid_corr_pairplots(
         plot_dat = dat.cor.subset.plot3,
         time = t,
@@ -442,7 +449,8 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         weight = "wt.BD29",
         corr_size = 4,
         plot_title = paste0(
-            "Correlations of 4 ", t, " antibody markers, ", if (grepl("Delta", t)) "\n", "Corr = Weighted Spearman Rank Correlation."
+            "Correlations of 4 ", t, " antibody markers, ", if (grepl("Delta", t)) "\n", "Corr = Weighted Spearman Rank Correlation. n=", 
+            nrow(cleaned_data)
         ),
         column_labels = paste(t, assay_metadata_sub$assay_label_short),
         height = max(1.3 * length(assay_metadata_sub$assay) + 0.1, 5.5),
@@ -455,6 +463,9 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
     )
     
     # 4 markers, three timepoints, among Naive participants, adhoc request by Bo
+    subset_columns <- subset(dat.cor.subset.plot3, nnaive == 0)[, paste0(t, assay_metadata_sub$assay)]
+    cleaned_data <- subset_columns[rowSums(is.na(subset_columns)) < ncol(subset_columns), ] # Remove rows where all columns in the subset are missing
+    
     covid_corr_pairplots(
         plot_dat = subset(dat.cor.subset.plot3, nnaive == 0),
         time = t,
@@ -465,7 +476,8 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         weight = "wt.BD29",
         corr_size = 4,
         plot_title = paste0(
-            "Correlations of 4 ", t, " antibody markers, among naive participants\n", "Corr = Weighted Spearman Rank Correlation."
+            "Correlations of 4 ", t, " antibody markers, among naive participants\n", "Corr = Weighted Spearman Rank Correlation. n=", 
+            nrow(cleaned_data)
         ),
         column_labels = paste(t, assay_metadata_sub$assay_label_short),
         height = max(1.3 * length(assay_metadata_sub$assay) + 0.1, 5.5),
@@ -479,6 +491,9 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
     
     
     # 4 markers, three timepoints, among Non-naive participants, adhoc request by Bo
+    subset_columns <- subset(dat.cor.subset.plot3, nnaive == 1)[, paste0(t, assay_metadata_sub$assay)]
+    cleaned_data <- subset_columns[rowSums(is.na(subset_columns)) < ncol(subset_columns), ] # Remove rows where all columns in the subset are missing
+    
     covid_corr_pairplots(
         plot_dat = subset(dat.cor.subset.plot3, nnaive == 1),
         time = t,
@@ -489,7 +504,8 @@ for (t in c("BD1","BD29","DeltaBD29overBD1")) {
         weight = "wt.BD29",
         corr_size = 4,
         plot_title = paste0(
-            "Correlations of 4 ", t, " antibody markers, among non-naive participants\n", "Corr = Weighted Spearman Rank Correlation."
+            "Correlations of 4 ", t, " antibody markers, among non-naive participants\n", "Corr = Weighted Spearman Rank Correlation. n=", 
+            nrow(cleaned_data)
         ),
         column_labels = paste(t, assay_metadata_sub$assay_label_short),
         height = max(1.3 * length(assay_metadata_sub$assay) + 0.1, 5.5),
@@ -644,9 +660,16 @@ for (i in 1:length(assays_adhoc)){
               panel.grid.minor = element_blank(),
               plot.margin = margin(5.5, 12, 5.5, 5.5, "pt")) 
     
+    sample_sizes <- dat_plot %>%
+        filter(assay == assays_adhoc[i]) %>%
+        group_by(Trt_nnaive2) %>%
+        dplyr::summarize(n = n())
+    
     p2 <- 
         ggplot(dat_plot %>% filter(assay == assays_adhoc[i]), 
                aes_string(x.var, y.var, color = "Trt")) +
+        geom_text(data = sample_sizes, aes(x = 3, y = -0.5, label = paste0("n = ", n)),
+                  hjust = 1.1, vjust = 1.5, color = "black", size = 4, inherit.aes = FALSE) +
         facet_grid(cols = vars(Trt_nnaive2)) +
         geom_point(size = 2) +
         geom_smooth(method = "loess", se=FALSE, color="red") +
